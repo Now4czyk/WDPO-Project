@@ -7,11 +7,13 @@ import cv2 as cv
 from tqdm import tqdm
 
 # MYCODE START ===================================================================================
-from utils.compareJSONs import compareJSONs
-from utils.compareJSONsForAll import compareJSONsForAll
-from utils.TEST_ONE import test
-from utils.TEST_ALL import test_all
-from utils.SET_VALUES import setValues
+# from utils.compareJSONs import compareJSONs
+# from utils.compareJSONsForAll import compareJSONsForAll
+# from utils.TEST_ONE import test
+# from utils.TEST_ALL import test_all
+import numpy as np
+
+# from utils.SET_VALUES import setValues
 
 # GREEN
 lHG = 36
@@ -76,6 +78,44 @@ cl = 0
 op = 0
 
 
+# TEMPORARY START =====================================================================================================================
+
+def test(img, img_resized, low_H, low_S, low_V, high_H, high_S, high_V, er, dil, cl, op):
+    properContours = 0
+
+    while True:
+        if img is None:
+            break
+
+        frame_HSV = cv.cvtColor(img_resized, cv.COLOR_BGR2HSV)
+        frame_threshold = cv.inRange(frame_HSV, (low_H, low_S, low_V), (high_H, high_S, high_V))
+
+        erosion = cv.erode(frame_threshold, np.ones((er, er), np.uint8), iterations=1)
+        dilation = cv.dilate(erosion, np.ones((dil, dil), np.uint8), iterations=1)
+        closing = cv.morphologyEx(dilation, cv.MORPH_CLOSE, np.ones((cl, cl), np.uint8))
+        opening = cv.morphologyEx(closing, cv.MORPH_OPEN, np.ones((op, op), np.uint8))
+
+        contours, hierarchy = cv.findContours(opening, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
+        # cv.waitKey(1)
+        properContours = len(contours)
+        break
+
+    return properContours
+
+
+def test_all(img, img_resized, lHG, lSG, lVG, hHG, hSG, hVG, eG, dG, cG, oG, lHY, lSY, lVY, hHY, hSY, hVY, eY, dY, cY,
+             oY, lHR, lSR, lVR, hHR, hSR, hVR, eR, dR, cR, oR, lHP, lSP, lVP, hHP, hSP, hVP, eP, dP, cP, oP):
+    green = test(img, img_resized, lHG, lSG, lVG, hHG, hSG, hVG, eG, dG, cG, oG)
+    yellow = test(img, img_resized, lHY, lSY, lVY, hHY, hSY, hVY, eY, dY, cY, oY)
+    red = test(img, img_resized, lHR, lSR, lVR, hHR, hSR, hVR, eR, dR, cR, oR)
+    purple = test(img, img_resized, lHP, lSP, lVP, hHP, hSP, hVP, eP, dP, cP, oP)
+    return green, yellow, red, purple
+
+
+# TEMPORARY FINISH =====================================================================================================================
+
+
 # MYCODE FINISH ===================================================================================
 def detect(img_path: str) -> Dict[str, int]:
     """Object detection function, according to the project description, to implement.
@@ -93,8 +133,8 @@ def detect(img_path: str) -> Dict[str, int]:
     img = cv.imread(img_path, cv.IMREAD_COLOR)
     # img = cv.imread(img_path, cv.IMREAD_COLOR)
     img_resized = cv.resize(img, None, fx=0.2, fy=0.2)
-    if img_path == 'data\\00.jpg':
-        img_resized = cv.resize(img, None, fx=0.7, fy=0.7)
+    # if img_path == 'data\\00.jpg':
+    #     img_resized = cv.resize(img, None, fx=0.7, fy=0.7)
 
     # TODO: Implement detection method.
 
@@ -139,12 +179,12 @@ def main(data_path: Path, output_file_path: Path):
     # MYCODE START ===================================================================================
 
     # compare jsons and print results to console
-    f1 = open('./utils/properResultValues.json')
-    f2 = open('./result.json')
-    properResults = json.load(f1)
-    results = json.load(f2)
-    # compareJSONs(results, properResults, 'red')
-    compareJSONsForAll(results, properResults)
+    # f1 = open('./utils/properResultValues.json')
+    # f2 = open('./result.json')
+    # properResults = json.load(f1)
+    # results = json.load(f2)
+    # # compareJSONs(results, properResults, 'red')
+    # compareJSONsForAll(results, properResults)
 
     # MYCODE FINISH ===================================================================================
 
