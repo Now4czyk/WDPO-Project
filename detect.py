@@ -5,16 +5,9 @@ from typing import Dict
 import click
 import cv2 as cv
 from tqdm import tqdm
-
-# MYCODE START ===================================================================================
-# from utils.compareJSONs import compareJSONs
-# from utils.compareJSONsForAll import compareJSONsForAll
-# from utils.TEST_ONE import test
-# from utils.TEST_ALL import test_all
 import numpy as np
 
-# from utils.SET_VALUES import setValues
-
+# Variables for color recognition settings
 # GREEN
 lHG = 36
 hHG = 51
@@ -63,23 +56,23 @@ dY = 4
 cY = 0
 oY = 0
 
-# PARAMS TO TEST_ONE
-max_value = 255
-max_value_H = 360 // 2
-low_H = lHR
-low_S = lSR
-low_V = lVR
-high_H = hHR
-high_S = hSR
-high_V = hVR
-er = 3
-dil = 10
-cl = 0
-op = 0
+
+# params test one color
+# max_value = 255
+# max_value_H = 360 // 2
+# low_H = lHR
+# low_S = lSR
+# low_V = lVR
+# high_H = hHR
+# high_S = hSR
+# high_V = hVR
+# er = 3
+# dil = 10
+# cl = 0
+# op = 0
 
 
-# TEMPORARY START =====================================================================================================================
-
+# Function that tests one color recognition
 def test(img, img_resized, low_H, low_S, low_V, high_H, high_S, high_V, er, dil, cl, op):
     properContours = 0
 
@@ -96,14 +89,13 @@ def test(img, img_resized, low_H, low_S, low_V, high_H, high_S, high_V, er, dil,
         opening = cv.morphologyEx(closing, cv.MORPH_OPEN, np.ones((op, op), np.uint8))
 
         contours, hierarchy = cv.findContours(opening, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
-        # cv.waitKey(1)
         properContours = len(contours)
         break
 
     return properContours
 
 
+# Function that tests all colors recognition
 def test_all(img, img_resized, lHG, lSG, lVG, hHG, hSG, hVG, eG, dG, cG, oG, lHY, lSY, lVY, hHY, hSY, hVY, eY, dY, cY,
              oY, lHR, lSR, lVR, hHR, hSR, hVR, eR, dR, cR, oR, lHP, lSP, lVP, hHP, hSP, hVP, eP, dP, cP, oP):
     green = test(img, img_resized, lHG, lSG, lVG, hHG, hSG, hVG, eG, dG, cG, oG)
@@ -113,10 +105,6 @@ def test_all(img, img_resized, lHG, lSG, lVG, hHG, hSG, hVG, eG, dG, cG, oG, lHY
     return green, yellow, red, purple
 
 
-# TEMPORARY FINISH =====================================================================================================================
-
-
-# MYCODE FINISH ===================================================================================
 def detect(img_path: str) -> Dict[str, int]:
     """Object detection function, according to the project description, to implement.
 
@@ -131,31 +119,21 @@ def detect(img_path: str) -> Dict[str, int]:
         Dictionary with quantity of each object.
     """
     img = cv.imread(img_path, cv.IMREAD_COLOR)
-    # img = cv.imread(img_path, cv.IMREAD_COLOR)
     img_resized = cv.resize(img, None, fx=0.2, fy=0.2)
-    # if img_path == 'data\\00.jpg':
-    #     img_resized = cv.resize(img, None, fx=0.7, fy=0.7)
 
-    # TODO: Implement detection method.
+    # Implementation
 
-    # MYCODE START ===================================================================================
-
-    # SETTING VALUES
-    # red, green, yellow, purple = setValues(img, img_resized, img_path, low_H, low_S, low_V, high_H, high_S, high_V,
-    #                                        max_value_H, max_value)
-
-    # TESTING ONE
+    # Settings for testing one color recognition
     # red = 0
     # green = 0
     # yellow = 0
     # purple = 0
     # red = test(img, img_resized, low_H, low_S, low_V, high_H, high_S, high_V, er, dil, cl, op)
-    # TESTING ALL
+
+    # Settings for testing all colors recognition
     green, yellow, red, purple = test_all(img, img_resized, lHG, lSG, lVG, hHG, hSG, hVG, eG, dG, cG, oG, lHY, lSY, lVY,
                                           hHY, hSY, hVY, eY, dY, cY, oY, lHR, lSR, lVR, hHR, hSR, hVR, eR, dR, cR, oR,
                                           lHP, lSP, lVP, hHP, hSP, hVP, eP, dP, cP, oP)
-
-    # MYCODE FINISH ===================================================================================
 
     return {'red': red, 'yellow': yellow, 'green': green, 'purple': purple}
 
@@ -176,18 +154,88 @@ def main(data_path: Path, output_file_path: Path):
     with open(output_file_path, 'w') as ofp:
         json.dump(results, ofp)
 
-    # MYCODE START ===================================================================================
-
-    # compare jsons and print results to console
+    # Code snippet for colors recognition tests. It involves jsons comparing and printing results to console
     # f1 = open('./utils/properResultValues.json')
     # f2 = open('./result.json')
     # properResults = json.load(f1)
     # results = json.load(f2)
-    # # compareJSONs(results, properResults, 'red')
+    # compareJSONs(results, properResults, 'red')
     # compareJSONsForAll(results, properResults)
-
-    # MYCODE FINISH ===================================================================================
 
 
 if __name__ == '__main__':
     main()
+
+# Util for comparing JSONs for one color recognition
+# class Result:
+#     status = ""
+#     messages = []
+#     fileName = []
+#
+#     def __init__(self, fn, s, msg):
+#         self.status = s
+#         self.fn = fn
+#         self.messages = msg
+#
+# def compareJSONs(results, properResults, testedColor):
+#     messages = []
+#     for fileName, colors in properResults.items():
+#         checkFile = []
+#         for color in colors:
+#             for myFileName, myColors in results.items():
+#                 if fileName == myFileName:
+#                     for myColor in myColors:
+#                         if (myColor == color) & (color == testedColor) & (myColors[myColor] != colors[color]):
+#                             checkFile.append(f'{color}, should be {colors[color]} but there is {myColors[myColor]}')
+#         if len(checkFile) == 0:
+#             messages.append(Result(fileName, 'success', []))
+#         else:
+#             messages.append(Result(fileName, 'error', checkFile))
+#
+#     for message in messages:
+#         print(f'{message.fn} {message.status}')
+#         if message.status == 'error':
+#             for msg in message.messages:
+#                 print(msg)
+
+# Utils for comparing JSONs for all colors recognition
+# class Result:
+#     status = ""
+#     messages = []
+#     colors = []
+#
+#     def __init__(self, fn, s, msg):
+#         self.status = s
+#         self.fn = fn
+#         self.messages = msg
+#
+# def compareJSONsForAll(results, properResults):
+#     messages = []
+#     baseError = 0
+#
+#     for fileName, colors in properResults.items():
+#         checkFile = []
+#         for color in colors:
+#             for myFileName, myColors in results.items():
+#                 if fileName == myFileName:
+#                     sum = colors['yellow'] + colors['green'] + colors['purple'] + colors['red']
+#                     for myColor in myColors:
+#                         if (myColor == color) & (myColors[myColor] != colors[color]):
+#                             checkFile.append(f'{color}, should be {colors[color]} but there is {myColors[myColor]}')
+#                             baseError += abs(colors[color] - myColors[myColor]) / sum
+#
+#         if len(checkFile) == 0:
+#             messages.append(Result(fileName, 'success', []))
+#         else:
+#             messages.append(Result(fileName, 'error', checkFile))
+#
+#     for message in messages:
+#         print(f'{message.fn} {message.status}')
+#         if message.status == 'error':
+#             for msg in message.messages:
+#                 print(msg)
+#
+#     # meanAbsoluteRelativePercentageError
+#     errorPercentage = baseError * 100 / 40
+#     print(f'error percentage = {errorPercentage}%')
+#     print(f'score = {100 - errorPercentage}%')
